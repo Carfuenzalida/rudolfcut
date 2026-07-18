@@ -1,0 +1,685 @@
+\
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111827" />
+  <title>RudolfCut | Quitar fondo</title>
+
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #667085;
+      --border: #d0d5dd;
+      --primary: #e31e24;
+      --primary-dark: #bd161b;
+      --success: #15803d;
+      --danger: #b42318;
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(227, 30, 36, .10), transparent 32rem),
+        var(--bg);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1100px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 50px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      color: #fff;
+      background: var(--primary);
+      box-shadow: 0 10px 25px rgba(227, 30, 36, .22);
+    }
+
+    .privacy {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin: 34px auto 26px;
+      max-width: 720px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 4rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .app-card {
+      background: var(--card);
+      border: 1px solid rgba(208, 213, 221, .8);
+      border-radius: var(--radius);
+      box-shadow: 0 24px 70px rgba(16, 24, 40, .10);
+      overflow: hidden;
+    }
+
+    .drop-zone {
+      margin: 22px;
+      min-height: 300px;
+      border: 2px dashed var(--border);
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 28px;
+      cursor: pointer;
+      transition: .2s ease;
+      background: #fcfcfd;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragging {
+      border-color: var(--primary);
+      background: #fff7f7;
+      transform: translateY(-1px);
+    }
+
+    .drop-zone.disabled {
+      pointer-events: none;
+      opacity: .65;
+    }
+
+    .upload-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 16px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      font-size: 2rem;
+      background: #fee4e2;
+    }
+
+    .drop-zone h2 {
+      margin: 0 0 10px;
+      font-size: 1.5rem;
+    }
+
+    .drop-zone p {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+
+    .button {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 20px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: .18s ease;
+    }
+
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
+    .button-primary {
+      color: #fff;
+      background: var(--primary);
+      box-shadow: 0 10px 22px rgba(227, 30, 36, .22);
+    }
+
+    .button-primary:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .button-dark {
+      color: #fff;
+      background: #111827;
+    }
+
+    .button-light {
+      color: #344054;
+      background: #f2f4f7;
+      border: 1px solid #e4e7ec;
+    }
+
+    .workspace {
+      display: none;
+      padding: 22px;
+    }
+
+    .workspace.show {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .image-card {
+      border: 1px solid #e4e7ec;
+      border-radius: 17px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .image-card h3 {
+      margin: 0;
+      padding: 14px 16px;
+      font-size: .95rem;
+      border-bottom: 1px solid #e4e7ec;
+    }
+
+    .image-stage {
+      min-height: 390px;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      overflow: hidden;
+      background: #f2f4f7;
+    }
+
+    .checkerboard {
+      background-color: #fff;
+      background-image:
+        linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+        linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+        linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    }
+
+    .image-stage img {
+      display: block;
+      max-width: 100%;
+      max-height: 520px;
+      object-fit: contain;
+    }
+
+    .placeholder {
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .status {
+      display: none;
+      margin-top: 18px;
+      padding: 15px;
+      border-radius: 13px;
+      background: #f8fafc;
+      border: 1px solid #e4e7ec;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.error {
+      color: var(--danger);
+      background: #fff4f3;
+      border-color: #fecdca;
+    }
+
+    .status.success {
+      color: var(--success);
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      margin-top: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e4e7ec;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: var(--primary);
+      transition: width .2s ease;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .note {
+      padding: 0 22px 22px;
+      color: var(--muted);
+      font-size: .88rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .small {
+      font-size: .84rem;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 760px) {
+      .header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .drop-zone {
+        min-height: 270px;
+        margin: 14px;
+      }
+
+      .workspace {
+        padding: 14px;
+      }
+
+      .image-stage {
+        min-height: 280px;
+      }
+
+      .actions .button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-mark">✂</div>
+        <span>RudolfCut</span>
+      </div>
+      <div class="privacy">La imagen se procesa en tu navegador</div>
+    </header>
+
+    <section class="hero">
+      <h1>Quita el fondo de una imagen</h1>
+      <p>Selecciona una foto y descarga automáticamente un PNG transparente.</p>
+    </section>
+
+    <section class="app-card">
+      <div id="dropZone" class="drop-zone" role="button" tabindex="0">
+        <div>
+          <div class="upload-icon">🖼️</div>
+          <h2>Sube una imagen</h2>
+          <p>Haz clic o arrástrala hasta aquí</p>
+          <button id="chooseButton" class="button button-primary" type="button">
+            Seleccionar imagen
+          </button>
+          <div class="small">JPG, PNG o WEBP · máximo 15 MB</div>
+        </div>
+      </div>
+
+      <input
+        id="fileInput"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        hidden
+      />
+
+      <div id="workspace" class="workspace">
+        <div class="grid">
+          <article class="image-card">
+            <h3>Imagen original</h3>
+            <div class="image-stage">
+              <img id="originalImage" alt="Imagen original" />
+            </div>
+          </article>
+
+          <article class="image-card">
+            <h3>Resultado transparente</h3>
+            <div id="resultStage" class="image-stage checkerboard">
+              <div id="resultPlaceholder" class="placeholder">
+                Presiona <strong>Quitar fondo</strong> para procesar la imagen.
+              </div>
+              <img id="resultImage" alt="Imagen sin fondo" hidden />
+            </div>
+          </article>
+        </div>
+
+        <div id="status" class="status" aria-live="polite">
+          <div id="statusText">Preparando…</div>
+          <div class="progress-track">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="removeButton" class="button button-primary" type="button">
+            Quitar fondo
+          </button>
+          <button id="downloadButton" class="button button-dark" type="button" disabled>
+            Descargar PNG
+          </button>
+          <button id="newButton" class="button button-light" type="button">
+            Elegir otra imagen
+          </button>
+        </div>
+      </div>
+
+      <p class="note">
+        La primera imagen puede tardar más porque el navegador debe descargar el modelo de inteligencia artificial.
+        Después queda guardado en la caché.
+      </p>
+    </section>
+  </main>
+
+  <script type="module">
+    const MAX_SIZE = 15 * 1024 * 1024;
+    const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+    const fileInput = document.querySelector("#fileInput");
+    const chooseButton = document.querySelector("#chooseButton");
+    const dropZone = document.querySelector("#dropZone");
+    const workspace = document.querySelector("#workspace");
+    const originalImage = document.querySelector("#originalImage");
+    const resultImage = document.querySelector("#resultImage");
+    const resultPlaceholder = document.querySelector("#resultPlaceholder");
+    const removeButton = document.querySelector("#removeButton");
+    const downloadButton = document.querySelector("#downloadButton");
+    const newButton = document.querySelector("#newButton");
+    const statusBox = document.querySelector("#status");
+    const statusText = document.querySelector("#statusText");
+    const progressBar = document.querySelector("#progressBar");
+
+    let selectedFile = null;
+    let originalUrl = "";
+    let resultUrl = "";
+    let removeBackgroundFunction = null;
+
+    function openPicker() {
+      if (!dropZone.classList.contains("disabled")) {
+        fileInput.click();
+      }
+    }
+
+    chooseButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openPicker();
+    });
+
+    dropZone.addEventListener("click", openPicker);
+
+    dropZone.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openPicker();
+      }
+    });
+
+    fileInput.addEventListener("change", () => {
+      const [file] = fileInput.files;
+      if (file) loadFile(file);
+    });
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropZone.classList.add("dragging");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropZone.classList.remove("dragging");
+      });
+    });
+
+    dropZone.addEventListener("drop", (event) => {
+      const [file] = event.dataTransfer.files;
+      if (file) loadFile(file);
+    });
+
+    newButton.addEventListener("click", () => {
+      resetApp();
+      openPicker();
+    });
+
+    removeButton.addEventListener("click", processImage);
+    downloadButton.addEventListener("click", downloadResult);
+
+    function loadFile(file) {
+      clearStatus();
+
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        showError("Formato no compatible. Usa una imagen JPG, PNG o WEBP.");
+        return;
+      }
+
+      if (file.size > MAX_SIZE) {
+        showError("La imagen supera el límite de 15 MB.");
+        return;
+      }
+
+      selectedFile = file;
+      revokeUrl(originalUrl);
+      revokeUrl(resultUrl);
+
+      originalUrl = URL.createObjectURL(file);
+      resultUrl = "";
+
+      originalImage.src = originalUrl;
+      resultImage.src = "";
+      resultImage.hidden = true;
+      resultPlaceholder.hidden = false;
+      resultPlaceholder.innerHTML =
+        'Presiona <strong>Quitar fondo</strong> para procesar la imagen.';
+
+      downloadButton.disabled = true;
+      removeButton.disabled = false;
+
+      dropZone.style.display = "none";
+      workspace.classList.add("show");
+    }
+
+    async function importBackgroundRemover() {
+      if (removeBackgroundFunction) return removeBackgroundFunction;
+
+      const sources = [
+        "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm",
+        "https://esm.sh/@imgly/background-removal@1.7.0?bundle"
+      ];
+
+      let lastError;
+
+      for (const source of sources) {
+        try {
+          const module = await import(source);
+          removeBackgroundFunction = module.default;
+          return removeBackgroundFunction;
+        } catch (error) {
+          lastError = error;
+          console.warn(`No se pudo cargar ${source}`, error);
+        }
+      }
+
+      throw lastError || new Error("No se pudo cargar el motor de eliminación de fondo.");
+    }
+
+    async function processImage() {
+      if (!selectedFile) return;
+
+      setBusy(true);
+      showProgress("Cargando el motor de inteligencia artificial…", 5);
+
+      try {
+        const removeBackground = await importBackgroundRemover();
+
+        const config = {
+          model: "isnet_quint8",
+          device: "cpu",
+          output: {
+            format: "image/png",
+            quality: 1,
+            type: "foreground"
+          },
+          progress: (key, current, total) => {
+            if (!total) return;
+            const percentage = Math.min(90, Math.max(8, (current / total) * 85));
+            const label = key?.includes("model")
+              ? "Descargando modelo de IA…"
+              : "Preparando componentes…";
+            showProgress(label, percentage);
+          }
+        };
+
+        showProgress("Analizando la imagen…", 92);
+        const blob = await removeBackground(selectedFile, config);
+
+        revokeUrl(resultUrl);
+        resultUrl = URL.createObjectURL(blob);
+
+        resultImage.src = resultUrl;
+        resultImage.hidden = false;
+        resultPlaceholder.hidden = true;
+        downloadButton.disabled = false;
+
+        showSuccess("Fondo eliminado. Ya puedes descargar el PNG.", 100);
+      } catch (error) {
+        console.error(error);
+        showError(
+          "No fue posible procesar la imagen. Comprueba tu conexión y abre el INDEX desde GitHub Pages o un servidor local."
+        );
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function downloadResult() {
+      if (!resultUrl || !selectedFile) return;
+
+      const originalName = selectedFile.name.replace(/\.[^.]+$/, "");
+      const link = document.createElement("a");
+      link.href = resultUrl;
+      link.download = `${originalName}-sin-fondo.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    function setBusy(isBusy) {
+      removeButton.disabled = isBusy;
+      newButton.disabled = isBusy;
+      fileInput.disabled = isBusy;
+      dropZone.classList.toggle("disabled", isBusy);
+      removeButton.textContent = isBusy ? "Procesando…" : "Quitar fondo";
+    }
+
+    function showProgress(message, value) {
+      statusBox.className = "status show";
+      statusText.textContent = message;
+      progressBar.style.width = `${Math.max(0, Math.min(100, value))}%`;
+    }
+
+    function showSuccess(message, value = 100) {
+      statusBox.className = "status show success";
+      statusText.textContent = message;
+      progressBar.style.width = `${value}%`;
+    }
+
+    function showError(message) {
+      statusBox.className = "status show error";
+      statusText.textContent = message;
+      progressBar.style.width = "0%";
+    }
+
+    function clearStatus() {
+      statusBox.className = "status";
+      statusText.textContent = "";
+      progressBar.style.width = "0%";
+    }
+
+    function resetApp() {
+      selectedFile = null;
+      fileInput.value = "";
+
+      revokeUrl(originalUrl);
+      revokeUrl(resultUrl);
+
+      originalUrl = "";
+      resultUrl = "";
+      originalImage.src = "";
+      resultImage.src = "";
+      resultImage.hidden = true;
+      resultPlaceholder.hidden = false;
+
+      workspace.classList.remove("show");
+      dropZone.style.display = "grid";
+      downloadButton.disabled = true;
+      clearStatus();
+    }
+
+    function revokeUrl(url) {
+      if (url) URL.revokeObjectURL(url);
+    }
+
+    window.addEventListener("beforeunload", () => {
+      revokeUrl(originalUrl);
+      revokeUrl(resultUrl);
+    });
+  </script>
+</body>
+</html>
